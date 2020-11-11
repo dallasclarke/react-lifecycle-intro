@@ -1,0 +1,18 @@
+.todo-button-shared-style {
+    margin: 10px;
+    padding: 5px;
+    color: white;
+    cursor: pointer;
+    border-radius: 5px;
+  }
+  .edit-button {
+    background-color: blue;
+  }
+  .delete-button {
+    background-color: red;
+  }
+
+  .disabled {
+    pointer-events: none;
+    background-color: grey;
+  }
