@@ -1,27 +1,12 @@
 import React, { Component } from "react";
+import jwtDecode from "jwt-decode";
 
 import { v4 as uuidv4 } from "uuid";
 import TodoView from "./TodoView";
 
 export default class Todo extends Component {
   state = {
-    todoList: [
-      {
-        id: uuidv4(),
-        todo: "Walk the dog",
-        editToggle: false,
-      },
-      {
-        id: uuidv4(),
-        todo: "Buy Milk",
-        editToggle: false,
-      },
-      {
-        id: uuidv4(),
-        todo: "Clean shorts",
-        editToggle: false,
-      },
-    ],
+    todoList: [],
     todoValue: "",
     showErrorMessage: false,
     showNoTodosMessage: false,
@@ -29,6 +14,23 @@ export default class Todo extends Component {
     editTodoValue: "",
     disabledEditButton: false,
   };
+
+  // componentDidMount() {
+  //   let token = localStorage.getItem("jwtToken");
+
+  //   if (token !== null) {
+  //     let decoded = jwtDecode(token);
+
+  //     let currentTime = Date.now() / 1000;
+
+  //     if (decoded.exp < currentTime) {
+  //       localStorage.removeItem("jwtToken");
+  //       this.props.history.push("/sign-in");
+  //     } else {
+  //       this.props.history.push("/sign-in");
+  //     }
+  //   }
+  // }
 
   handleInputChange = (event) => {
     //console.log(event.target.name, event.target.value);

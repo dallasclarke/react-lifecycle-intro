@@ -1,16 +1,15 @@
 import React, { Component } from "react";
 import validator from "validator";
 import axios from "axios";
+import Todo from "../Todo/Todo";
 import jwtDecode from "jwt-decode";
 
-import Todo from "../Todo/Todo";
 import Message from "../shared/Message";
 
-// import "./Signin.css";
 
 class Signin extends Component {
   state = {
-    user: null,
+    isAuth: false,
     email: "",
     password: "",
     errorMessage: "",
@@ -21,12 +20,14 @@ class Signin extends Component {
     successMessage: "",
   };
 
+  
+
   componentDidMount() {
     let token = localStorage.getItem("jwtToken");
+    // this.props.auth(success.data.jwtToken);
 
     if (token !== null) {
       let decoded = jwtDecode(token);
-
       let currentTime = Date.now() / 1000;
 
       if (decoded.exp < currentTime) {
@@ -36,7 +37,8 @@ class Signin extends Component {
         this.props.history.push("/todo");
       }
     }
-  };
+  }
+
 
   handleOnChangeEmail = (event) => {
     //1. how to check if the input is an email???
@@ -69,12 +71,14 @@ class Signin extends Component {
     );
   };
 
+
   handleOnChangePassword = (event) => {
     this.setState({
       [event.target.name]: event.target.value,
     });
     // Please include 1 uppercase 1 lowercase 1 number 1 symbol and must be 8 characters long
   };
+
 
   handleOnSubmit = async (event) => {
     event.preventDefault();
@@ -115,7 +119,6 @@ class Signin extends Component {
         submitErrorMessage: "",
       });
     }
-
     try {
       let success = await axios.post(
         "http://localhost:3003/api/users/sign-in",
@@ -134,6 +137,7 @@ class Signin extends Component {
           isAuth: true,
         },
         () => {
+          this.props.auth(success.data.jwtToken);
           this.props.history.push("/todo");
         }
       );
@@ -155,7 +159,7 @@ class Signin extends Component {
           isError: true,
           errorMessage: e.response.data.message,
         });
-      } else if (e && e.response.status === 404) {
+      } else if (e && e.response.data.message === 404) {
         this.setState({
           isError: true,
           errorMessage: e.response.data.message,
@@ -164,7 +168,6 @@ class Signin extends Component {
     }
   };
 
-  auth = (jwtToken) => {console.log('lol', jwtToken)};
 
   render() {
     const {
@@ -176,7 +179,6 @@ class Signin extends Component {
       isSuccessMessage,
       successMessage,
     } = this.state;
-
     let showTodoComponent = isAuth ? (
       <Todo />
     ) : (
@@ -194,10 +196,10 @@ class Signin extends Component {
           ""
         )}
         {/* {isSuccessMessage ? (
-          <div className="success-message">{successMessage}</div>
-        ) : (
-          ""
-        )} */}
+        <div className="success-message">{successMessage}</div>
+    ) : (
+        ""
+    )} */}
         {isSuccessMessage ? (
           <Message className={"success-message"} message={successMessage} />
         ) : (
