@@ -38,25 +38,47 @@ export default class Nav extends Component {
     }
   }
 
+  componentDidUpdate(prevState, prevProps) {
+    if (
+      this.props.user !== prevState.user &&
+      this.props.isAuth !== prevState.isAuth
+    ) {
+      this.setState({
+        isAuth: this.props.isAuth,
+        user: {
+          email: this.props.user.email,
+          _id: this.props.user._id,
+        },
+      });
+    }
+  }
+
+  // logout = () => {
+  //   localStorage.removeItem("jwtToken");
+
+  //   this.setState({
+  //     isAuth: false,
+  //     user: null,
+  //   });
+  // };
+
   logout = () => {
     localStorage.removeItem("jwtToken");
-
-    this.setState({
-      isAuth: false,
-      user: null,
-    });
+    this.props.logout();
   };
 
   render() {
     let nav;
+    //ComponentDidUpdate Solution
+    // if (this.state.isAuth && this.state.user !== nul)
 
-    if (this.state.isAuth && this.state.user !== null) {
+    if (this.props.isAuth && this.props.user !== null) {
       nav = (
         <div>
           <ul style={{ listStyle: "none" }}>
             <li style={{ display: "inline", marginRight: 20 }}>
               <Link to="/profile" style={{ textDecoration: "none" }}>
-                {this.state.user.email}
+                {this.props.user.email}
               </Link>
             </li>
             <li style={{ display: "inline" }}>

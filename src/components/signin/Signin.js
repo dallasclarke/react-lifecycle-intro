@@ -5,6 +5,7 @@ import jwtDecode from "jwt-decode";
 
 import Todo from "../Todo/Todo";
 import Message from "../shared/Message";
+
 // import "./Signin.css";
 
 class Signin extends Component {
@@ -163,7 +164,7 @@ class Signin extends Component {
     }
   };
 
-  auth = () => {}
+  auth = (jwtToken) => {console.log('lol', jwtToken)};
 
   render() {
     const {
