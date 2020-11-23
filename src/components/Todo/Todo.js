@@ -1,4 +1,5 @@
 import React, { Component } from "react";
+import axios from "axios";
 import jwtDecode from "jwt-decode";
 
 import { v4 as uuidv4 } from "uuid";
@@ -15,22 +16,22 @@ export default class Todo extends Component {
     disabledEditButton: false,
   };
 
-  // componentDidMount() {
-  //   let token = localStorage.getItem("jwtToken");
+  async componentDidMount() {
+    let jwtToken = localStorage.getItem("jwtToken");
+    let decoded = jwtDecode(jwtToken);
 
-  //   if (token !== null) {
-  //     let decoded = jwtDecode(token);
+    try {
+      let allUserTodos = await axios.get(
+        `http://localhost:3003/api/todo/get-user-all-todos?userID=${decoded._id}`
+      );
 
-  //     let currentTime = Date.now() / 1000;
-
-  //     if (decoded.exp < currentTime) {
-  //       localStorage.removeItem("jwtToken");
-  //       this.props.history.push("/sign-in");
-  //     } else {
-  //       this.props.history.push("/sign-in");
-  //     }
-  //   }
-  // }
+      this.setState({
+        todoList: allUserTodos.data.todos,
+      });
+    } catch (e) {
+      console.log(e);
+    }
+  }
 
   handleInputChange = (event) => {
     //console.log(event.target.name, event.target.value);
@@ -46,7 +47,7 @@ export default class Todo extends Component {
     });
   };
 
-  handleSubmit = (event) => {
+  handleSubmit = async (event) => {
     event.preventDefault();
 
     if (this.state.todoValue.length === 0) {
@@ -56,28 +57,37 @@ export default class Todo extends Component {
       return;
     }
 
-    let newTodoObj = {
-      id: uuidv4(),
-      todo: this.state.todoValue,
-    };
+    let jwtToken = localStorage.getItem("jwtToken");
+    let decoded = jwtDecode(jwtToken);
 
-    let newArray = [...this.state.todoList, newTodoObj];
-    // let newArray = [...this.state.todoList];
-    // newArray.push(newTodoObj);
-
-    this.setState(
-      {
-        todoList: newArray,
-        todoValue: "",
-      },
-      () => {
-        if (this.state.todoList.length > 0) {
-          this.setState({
-            showNoTodosMessage: false,
-          });
+    try {
+      let createdTodo = await axios.post(
+        "http://localhost:3003/api/api/todo/create-todo",
+        {
+          todo: this.state.todoValue,
+          _id: decoded._id,
         }
-      }
-    );
+      );
+      console.log(createdTodo);
+
+      let newArray = [...this.state.todoList, createdTodo.data];
+
+      this.setState(
+        {
+          todoList: newArray,
+          todoValue: "",
+        },
+        () => {
+          if (this.state.todoList.length > 0) {
+            this.setState({
+              showNoTodosMessage: false,
+            });
+          }
+        }
+      );
+    } catch (e) {
+      console.log(e);
+    }
   };
 
   // showTodoList = () => {

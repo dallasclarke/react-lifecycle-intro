@@ -31,9 +31,9 @@ const TodoView = ({
 
   return (
     <ul style={{ listStyle: "none" }}>
-      {todoList.map(({ id, todo, editToggle }) => {
+      {todoList.map(({ _id, todo, editToggle }) => {
         return (
-          <li key={id} style={{ margin: 20 }}>
+          <li key={_id} style={{ margin: 20 }}>
             {showEditInput && editToggle ? (
               <input
                 type="text"
@@ -55,7 +55,7 @@ const TodoView = ({
               // </span>
               <Span
                 value={"Update"}
-                id={id}
+                id={_id}
                 onClick={todoEditSubmitButton}
                 className="todo-button-shared-style edit-button"
               />
@@ -70,7 +70,7 @@ const TodoView = ({
               // </span>
               <Span
                 value={"Edit"}
-                id={id}
+                id={_id}
                 onClick={todoEditHandleButton}
                 className={`todo-button-shared-style edit-button`}
                 disabledClass="disabled"
@@ -88,7 +88,7 @@ const TodoView = ({
             </span>  */}
             <Span
               value={"Delete"}
-              id={id}
+              id={_id}
               onClick={todoViewHandleDeleteButton}
               className={`todo-button-shared-style delete-button`}
               disabledClass="disabled"
@@ -108,7 +108,7 @@ const TodoView = ({
 TodoView.propTypes = {
   todoList: arrayOf(
     shape({
-      id: string.isRequired,
+      _id: string.isRequired,
       todo: string.isRequired,
     })
   ),
