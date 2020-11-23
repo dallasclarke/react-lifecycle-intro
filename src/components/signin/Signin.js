@@ -1,15 +1,15 @@
 import React, { Component } from "react";
 import validator from "validator";
 import axios from "axios";
-import Todo from "../Todo/Todo";
 import jwtDecode from "jwt-decode";
 
 import Message from "../shared/Message";
 
+import "./Signin.css";
 
 class Signin extends Component {
   state = {
-    isAuth: false,
+    user: null,
     email: "",
     password: "",
     errorMessage: "",
@@ -20,14 +20,12 @@ class Signin extends Component {
     successMessage: "",
   };
 
-  
-
   componentDidMount() {
     let token = localStorage.getItem("jwtToken");
-    // this.props.auth(success.data.jwtToken);
 
     if (token !== null) {
       let decoded = jwtDecode(token);
+
       let currentTime = Date.now() / 1000;
 
       if (decoded.exp < currentTime) {
@@ -39,9 +37,9 @@ class Signin extends Component {
     }
   }
 
-
   handleOnChangeEmail = (event) => {
     //1. how to check if the input is an email???
+
     this.setState(
       {
         [event.target.name]: event.target.value,
@@ -54,7 +52,9 @@ class Signin extends Component {
         // } else {
         //   console.log("False");
         // }
+
         let isEmail = validator.isEmail(email);
+
         if (isEmail) {
           this.setState({
             isError: false,
@@ -71,7 +71,6 @@ class Signin extends Component {
     );
   };
 
-
   handleOnChangePassword = (event) => {
     this.setState({
       [event.target.name]: event.target.value,
@@ -79,10 +78,11 @@ class Signin extends Component {
     // Please include 1 uppercase 1 lowercase 1 number 1 symbol and must be 8 characters long
   };
 
-
   handleOnSubmit = async (event) => {
     event.preventDefault();
+
     const { email, password } = this.state;
+
     if (validator.isEmpty(email) && validator.isEmpty(password)) {
       this.setState({
         isSubmitError: true,
@@ -95,6 +95,7 @@ class Signin extends Component {
         submitErrorMessage: "",
       });
     }
+
     if (validator.isEmpty(email)) {
       this.setState({
         isSubmitError: true,
@@ -107,6 +108,7 @@ class Signin extends Component {
         submitErrorMessage: "",
       });
     }
+
     if (validator.isEmpty(password)) {
       this.setState({
         isSubmitError: true,
@@ -119,6 +121,7 @@ class Signin extends Component {
         submitErrorMessage: "",
       });
     }
+
     try {
       let success = await axios.post(
         "http://localhost:3003/api/users/sign-in",
@@ -142,10 +145,11 @@ class Signin extends Component {
         }
       );
     } catch (e) {
-      //console.log(e.response);
-      // console.log(e.response.status);
-      // console.log(e.response.data.message);
+      console.log(e.response);
+      console.log(e.response.status);
+      console.log(e.response.data.message);
       let errorMessage = e.toString();
+
       if (errorMessage === "Error: Network Error") {
         this.setState({
           isError: true,
@@ -154,12 +158,13 @@ class Signin extends Component {
         });
         return;
       }
+
       if (e && e.response.status === 401) {
         this.setState({
           isError: true,
           errorMessage: e.response.data.message,
         });
-      } else if (e && e.response.data.message === 404) {
+      } else if (e && e.response.status === 404) {
         this.setState({
           isError: true,
           errorMessage: e.response.data.message,
@@ -168,10 +173,10 @@ class Signin extends Component {
     }
   };
 
+  auth = () => {};
 
   render() {
     const {
-      isAuth,
       errorMessage,
       isError,
       isSubmitError,
@@ -179,9 +184,8 @@ class Signin extends Component {
       isSuccessMessage,
       successMessage,
     } = this.state;
-    let showTodoComponent = isAuth ? (
-      <Todo />
-    ) : (
+
+    let showTodoComponent = (
       <form onSubmit={this.handleOnSubmit}>
         {" "}
         {/* {isError ? <div className="error-message">{errorMessage}</div> : ""} */}
@@ -196,10 +200,10 @@ class Signin extends Component {
           ""
         )}
         {/* {isSuccessMessage ? (
-        <div className="success-message">{successMessage}</div>
-    ) : (
-        ""
-    )} */}
+          <div className="success-message">{successMessage}</div>
+        ) : (
+          ""
+        )} */}
         {isSuccessMessage ? (
           <Message className={"success-message"} message={successMessage} />
         ) : (
@@ -223,6 +227,7 @@ class Signin extends Component {
         <br /> <button>Sign in</button>
       </form>
     );
+
     return (
       <div style={{ textAlign: "center", marginTop: "15%" }}>
         {showTodoComponent}
@@ -230,4 +235,5 @@ class Signin extends Component {
     );
   }
 }
+
 export default Signin;

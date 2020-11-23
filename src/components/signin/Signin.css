@@ -1,0 +1,11 @@
+.plus-button-style {
+  margin-left: 3px;
+}
+
+.error-message {
+  color: red;
+}
+
+.success-message {
+  color: blue;
+}

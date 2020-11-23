@@ -3,13 +3,12 @@ import validator from "validator";
 import axios from "axios";
 import jwtDecode from "jwt-decode";
 
-import Todo from "../Todo/Todo";
 import Message from "../shared/Message";
-// import "./Signup.css";
+
+import "./Signup.css";
 
 class Signup extends Component {
   state = {
-    isAuth: false,
     email: "",
     password: "",
     errorMessage: "",
@@ -32,7 +31,7 @@ class Signup extends Component {
 
       if (decoded.exp < currentTime) {
         localStorage.removeItem("jwtToken");
-        this.props.history.push("/sign-in")
+        this.props.history.push("/");
       } else {
         this.props.history.push("/todo");
       }
@@ -126,6 +125,7 @@ class Signup extends Component {
         isSubmitError: true,
         submitErrorMessage: "Cannot have empty email",
       });
+      return;
     } else {
       this.setState({
         isSubmitError: false,
@@ -138,6 +138,7 @@ class Signup extends Component {
         isSubmitError: true,
         submitErrorMessage: "Cannot have empty password",
       });
+      return;
     } else {
       this.setState({
         isSubmitError: false,

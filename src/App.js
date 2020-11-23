@@ -13,9 +13,33 @@ import "./App.css";
 
 class App extends Component {
   state = {
-    isAut: false,
+    isAuth: false,
     user: null,
   };
+
+  componentDidMount() {
+    let token = localStorage.getItem("jwtToken");
+
+    if (token !== null) {
+      let decoded = jwtDecode(token);
+
+      let currentTime = Date.now() / 1000;
+
+      if (decoded.exp < currentTime) {
+        localStorage.removeItem("jwtToken");
+        //this.rpops.history.push("/");
+      } else {
+        this.setState({
+          isAuth: true,
+          user: {
+            email: decoded.email,
+            _id: decoded._id,
+          },
+        });
+        //this.props.history.push("/todo");
+      }
+    }
+  }
 
   auth = (jwtToken) => {
     let decoded = jwtDecode(jwtToken);
@@ -30,6 +54,7 @@ class App extends Component {
   };
 
   logout = () => {
+    localStorage.removeItem("jwtToken");
     this.setState({
       isAuth: false,
       user: null,
@@ -44,15 +69,15 @@ class App extends Component {
           user={this.state.user}
           logout={this.logout}
         />
-
         <Switch>
           <Route exact path="/sign-up" component={Signup} />
+          {/* <Route exact path="/sign-in" component={Signin} auth={this.auth} /> */}
           <Route
             exact
             path="/sign-in"
             component={(props) => <Signin {...props} auth={this.auth} />}
           />
-          <Route exact path="/todo" component={Todo} />
+          {/* <Route exact path="/todo" component={Todo} /> */}
           <PrivateRoute
             exact
             path="/todo"
@@ -60,6 +85,7 @@ class App extends Component {
             user={this.state.user}
             component={Todo}
           />
+
           <Route exact path="/" component={Home} />
         </Switch>
       </Router>

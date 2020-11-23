@@ -1,8 +1,6 @@
 import React, { Component } from "react";
 import axios from "axios";
 import jwtDecode from "jwt-decode";
-
-import { v4 as uuidv4 } from "uuid";
 import TodoView from "./TodoView";
 
 export default class Todo extends Component {
@@ -16,14 +14,35 @@ export default class Todo extends Component {
     disabledEditButton: false,
   };
 
+  // componentDidMount() {
+  //   let token = localStorage.getItem("jwtToken");
+
+  //   if (token !== null) {
+  //     let decoded = jwtDecode(token);
+
+  //     let currentTime = Date.now() / 1000;
+
+  //     if (decoded.exp < currentTime) {
+  //       localStorage.removeItem("jwtToken");
+  //       this.props.history.push("/sign-in");
+  //     }
+  //   } else {
+  //     this.props.history.push("/sign-in");
+  //   }
+  // }
+
   async componentDidMount() {
     let jwtToken = localStorage.getItem("jwtToken");
     let decoded = jwtDecode(jwtToken);
 
     try {
       let allUserTodos = await axios.get(
-        `http://localhost:3003/api/todo/get-user-all-todos?userID=${decoded._id}`
+        `http://localhost:3003/api/todo/get-user-all-todos?userID=${decoded._id}&hamster=overlord`
       );
+
+      // let allUserTodos = await axios.get(
+      //   `http://localhost:3003/api/todo/get-user-all-todos/${decoded._id}`
+      // );
 
       this.setState({
         todoList: allUserTodos.data.todos,
@@ -62,12 +81,14 @@ export default class Todo extends Component {
 
     try {
       let createdTodo = await axios.post(
-        "http://localhost:3003/api/api/todo/create-todo",
+        "http://localhost:3003/api/todo/create-todo",
         {
           todo: this.state.todoValue,
           _id: decoded._id,
+          // _id: this.props.user._id,
         }
       );
+
       console.log(createdTodo);
 
       let newArray = [...this.state.todoList, createdTodo.data];
@@ -88,6 +109,15 @@ export default class Todo extends Component {
     } catch (e) {
       console.log(e);
     }
+
+    // let newTodoObj = {
+    //   id: uuidv4(),
+    //   todo: this.state.todoValue,
+    // };
+
+    // let newArray = [...this.state.todoList, newTodoObj];
+    // let newArray = [...this.state.todoList];
+    // newArray.push(newTodoObj);
   };
 
   // showTodoList = () => {
@@ -100,28 +130,43 @@ export default class Todo extends Component {
     console.log("Add Func");
   };
 
-  appHandleDeleteTodo = (targetID) => {
+  appHandleDeleteTodo = async (targetID) => {
     //console.log("ID: ", id);
+    let token = localStorage.getItem("jwtToken");
+    let decoded = jwtDecode(token);
 
-    let copiedArray = [...this.state.todoList];
-
-    let filteredArray = copiedArray.filter(({ id }) => {
-      return id !== targetID;
-    });
-
-    this.setState(
-      {
-        todoList: filteredArray,
-      },
-      () => {
-        // console.log("-----" + "inside setState");
-        if (this.state.todoList.length === 0) {
-          this.setState({
-            showNoTodosMessage: true,
-          });
+    try {
+      let deletedID = await axios.delete(
+        "http://localhost:3003/api/todo/delete-todo",
+        {
+          data: {
+            userID: decoded._id,
+            todoID: targetID,
+          },
         }
-      }
-    );
+      );
+
+      let copiedArray = [...this.state.todoList];
+
+      let filteredArray = copiedArray.filter(({ _id }) => {
+        return _id !== deletedID.data;
+      });
+
+      this.setState(
+        {
+          todoList: filteredArray,
+        },
+        () => {
+          // console.log("-----" + "inside setState");
+          if (this.state.todoList.length === 0) {
+            this.setState({
+              showNoTodosMessage: true,
+            });
+          }
+        }
+      );
+    } catch (e) {}
+
     // console.log("outside setSTate");
     // if (this.state.todoList.length === 0) {
     //   this.setState({
@@ -131,8 +176,8 @@ export default class Todo extends Component {
   };
 
   appHandleEditTodo = (targetID) => {
-    console.log(targetID);
-    console.log(this.state);
+    // console.log(targetID);
+    // console.log(this.state);
     let copiedArray = [...this.state.todoList];
     let editTodoValue;
     copiedArray.map((item) => {

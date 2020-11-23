@@ -18,6 +18,7 @@ const TodoView = ({
 
   const todoViewHandleDeleteButton = (id) => {
     //console.log("ID: ", id);
+
     appHandleDeleteTodo(id);
   };
 
