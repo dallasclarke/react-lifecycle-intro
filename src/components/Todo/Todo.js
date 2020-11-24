@@ -37,8 +37,20 @@ export default class Todo extends Component {
 
     try {
       let allUserTodos = await axios.get(
-        `http://localhost:3003/api/todo/get-user-all-todos?userID=${decoded._id}&hamster=overlord`
+        `http://localhost:3003/api/todo/get-user-all-todos?userID=${decoded._id}&hamster=overlord`,
+        {
+          headers: {
+            "authorization": `Bearer ${jwtToken}`,
+          },
+        }
       );
+
+      let todoArrays = allUserTodos.data.todos;
+
+      todoArrays = todoArrays.map((todo) => {
+        todo.isToggle = false;
+        return todo;
+      });
 
       // let allUserTodos = await axios.get(
       //   `http://localhost:3003/api/todo/get-user-all-todos/${decoded._id}`
@@ -181,7 +193,7 @@ export default class Todo extends Component {
     let copiedArray = [...this.state.todoList];
     let editTodoValue;
     copiedArray.map((item) => {
-      if (item.id === targetID) {
+      if (item._id === targetID) {
         item.editToggle = true;
         editTodoValue = item.todo;
       }
@@ -201,11 +213,20 @@ export default class Todo extends Component {
     });
   };
 
-  appHandleEditSubmit = (targetID) => {
+  appHandleEditSubmit = async (targetID) => {
+    try {
+      let updatedTodo = await axios.put(
+        "http://localhost:3003/api/todo/update-todo",
+        {
+          todoID: targetID,
+          newTodoValue: this.state.editTodoValue,
+        }
+      );
+
     let copiedArray = [...this.state.todoList];
 
     let updatedTodoArray = copiedArray.map((item) => {
-      if (item.id === targetID) {
+      if (item._id === targetID) {
         item.todo = this.state.editTodoValue;
         item.editToggle = false;
       }
@@ -217,7 +238,10 @@ export default class Todo extends Component {
       showEditInput: false,
       disabledEditButton: false,
     });
-  };
+  } catch(e) {
+      console.log(e);
+  }
+};
 
   render() {
     const {
